@@ -1,0 +1,159 @@
+
+---
+
+## ⚡ How to Make Your Site Fast & Prevent Unnecessary Re-Renders
+
+### ✅ 1. **Split Components Smartly**
+> **Divide sections into isolated components.**
+- Example: `<HeroSection />`, `<Projects />`, `<Roadmap />` etc.
+- Each component should have **only what it needs**.
+  
+### ✅ 2. **Use `React.memo()` to Avoid Re-Renders**
+> When a component’s props don’t change ➜ **prevent re-rendering**.
+
+```js
+const HeroSection = React.memo(() => {
+  return <div>...</div>;
+});
+```
+
+Or with props:
+```js
+const ProjectCard = React.memo(({ title, img }) => {
+  return <div>{title}</div>;
+});
+```
+
+🧠 **Why?**: React won't re-render unless props change = faster site.
+
+---
+
+### ✅ 3. **Use `useCallback` and `useMemo` Properly**
+
+#### 🔁 `useCallback` – for memoizing functions
+```js
+const handleClick = useCallback(() => {
+  // do something
+}, []);
+```
+
+#### 📦 `useMemo` – for memoizing values
+```js
+const filteredProjects = useMemo(() => {
+  return projects.filter(...);
+}, [projects]);
+```
+
+🧠 **Why?**: Prevents creating new references every render.
+
+---
+
+### ✅ 4. **Code Splitting (Lazy Load Components)**
+
+React built-in `React.lazy()` and `Suspense` ➜ load sections **when needed**, not all at once.
+
+```js
+const Projects = React.lazy(() => import('./Projects'));
+
+<Suspense fallback={<Loader />}>
+  <Projects />
+</Suspense>
+```
+
+🧠 Example: Roadmap/Contact/3D parts can be lazy loaded.
+
+---
+
+### ✅ 5. **Throttle Expensive Animations / Scroll Events**
+> Avoid running heavy stuff on every pixel of scroll.
+
+```js
+const throttledScroll = useCallback(throttle(handleScroll, 200), []);
+```
+
+Libraries:
+- `lodash.throttle`
+- `framer-motion` with `useInView()` (only animate on view)
+
+---
+
+### ✅ 6. **Use `IntersectionObserver` for Lazy Rendering on Scroll**
+
+Only render/show animation when section is in viewport.
+
+```js
+const ref = useRef();
+const inView = useInView(ref, { once: true });
+
+return <div ref={ref}>{inView && <AnimatedPart />}</div>
+```
+
+🧠 Optimizes both performance and animations.
+
+---
+
+### ✅ 7. **Avoid Unnecessary State in Parent Components**
+> Don’t lift state too high. Use local state when possible.
+
+Bad:
+```js
+<App />
+ └── All state here, everything re-renders
+```
+
+Better:
+```js
+<HeroSection /> // handles its own animation state
+```
+
+---
+
+### ✅ 8. **Use Image Optimization**
+- Use modern formats like **WebP / AVIF**
+- Compress images with [TinyPNG](https://tinypng.com)
+- Use **lazy loading** for images:
+```js
+<img loading="lazy" src="..." />
+```
+
+---
+
+### ✅ 9. **Optimize Third-Party Libraries**
+- Don’t load unused GSAP/Framer features
+- Tree shake your bundle (Vite does this well)
+- Avoid large unnecessary packages
+
+---
+
+### ✅ 10. **Audit with Chrome DevTools / Lighthouse**
+Use DevTools ➜ Performance tab  
+Or run Lighthouse Audit ➜ check:
+- Time to Interactive
+- First Paint
+- Largest Contentful Paint
+
+---
+
+### ✅ 11. **Enable Production Build & Minify**
+
+For React + Vite:
+```bash
+npm run build
+serve -s dist
+```
+
+Ensure:
+- Minified code
+- Removed console logs (`vite-plugin-remove-console`)
+- Tree shaking works
+
+---
+
+## 🧠 Bonus: State Management Tips
+If tor site grows complex:
+- Use **Zustand** or **Jotai** (very light)
+- Or just `useContext + memo`
+
+---
+
+
